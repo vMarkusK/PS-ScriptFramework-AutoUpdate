@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Updater version="1.0">
+    <Variable Name="BaseScript" Value="BaseScript.ps1" />
+    <Files>
+        <File>BaseScript.ps1</File>
+        <File>BaseScript.xml</File>
+		<File>myExample.ps1</File>
+        <File>myExample.xml</File>
+    </Files>
+</Updater>
