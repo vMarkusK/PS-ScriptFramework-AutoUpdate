@@ -1,11 +1,11 @@
 ﻿<#	
 	.NOTES
-	===========================================================================
-	 Created by: Markus Kraus
-	 Organization: mycloudrevolution.com
-     Personal Blog:  mycloudrevolution.com
-     Twitter: @vMarkus_K
-	===========================================================================
+    ===========================================================================
+    Created by: Markus Kraus
+    Organization: mycloudrevolution.com
+    Personal Blog:  mycloudrevolution.com
+    Twitter: @vMarkus_K
+    ===========================================================================
 	.DESCRIPTION
     This is a self updating PowerShell Script Framework.
     

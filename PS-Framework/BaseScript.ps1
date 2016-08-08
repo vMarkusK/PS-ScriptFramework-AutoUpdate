@@ -1,12 +1,12 @@
 ﻿<#	
-	.NOTES
-	===========================================================================
-	 Created by: Markus Kraus
-	 Organization: mycloudrevolution.com
-     Personal Blog:  mycloudrevolution.com
-     Twitter: @vMarkus_K
-	===========================================================================
-	.DESCRIPTION
+    .NOTES
+    ===========================================================================
+    Created by: Markus Kraus
+    Organization: mycloudrevolution.com
+    Personal Blog:  mycloudrevolution.com
+    Twitter: @vMarkus_K
+    ===========================================================================
+    .DESCRIPTION
     This is a self updating PowerShell Script Framework.
     
     Module-Name: BaseScript
