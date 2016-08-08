@@ -16,7 +16,7 @@ Self updating PowerShell Script Framework
 
 Project Owner: Markus Kraus
 
-Project WebSite: http://mycloudrevolution.com
+Project WebSite: http://mycloudrevolution.com/projekte/powershell-script-framework/
 
 Project Details:
 
