@@ -15,7 +15,9 @@
 [CmdletBinding()]
 Param(
   [Parameter(Mandatory=$False,Position=1)]
-   [string] $Config = "Default"
+   [string] $Config = "Default",
+  [Parameter(Mandatory=$False,Position=2)]
+   [string] $IgnoreUpdate = $False
 )  
 
 #region: Clear Errors
@@ -116,16 +118,14 @@ if ($Config -ne "Default") {
 
 #region: Updater Check
 $myFile = $MyInvocation.MyCommand.Path
-$myFileHash = (Get-FileHash -Path $myFile).Hash
+$myFileHash = (Get-FileHash -Path $myFile -Algorithm MD5).Hash
 $newFile = ($BaseDir + $BasePS1)
-$newFileHash = (Get-FileHash -Path $newFile).Hash
+$newFileHash = (Get-FileHash -Path $newFile -Algorithm MD5).Hash
 
-Write-Output "`nMy Updater File: $myFile"
-Write-Output "My Updater File Hash: $myFileHash"
-Write-Output "New Updater File: $newFile"
-Write-Output "My Updater File Hash: $newFileHash"
+Write-Output "`nMy Updater File: $myFile `nMD5 Hash: $myFileHash"
+Write-Output "`nNew Updater File: $newFile `nMD5 Hash: $newFileHash"
 
-if ($myFileHash -ne $newFileHash) {
+if ($myFileHash -ne $newFileHash -and $IgnoreUpdate -eq $False) {
     try {
         Copy-Item $newFile -Destination $($myFile + ".new")
         Write-Warning "Replacing local Updater.ps1 with Server Version. Exiting this Version and wait for next run..."
@@ -137,7 +137,13 @@ if ($myFileHash -ne $newFileHash) {
             $Validate = $false
             Write-Error "`nERROR: Failed to Update Update.ps1"  
         } 
-}
+    }
+    elseif ($myFileHash -ne $newFileHash -and $IgnoreUpdate -eq $true) {
+        Write-Warning "Replacing local Updater.ps1 with Server Version skipped..."
+    }
+        elseif ($myFileHash -eq $newFileHash ) {
+        Write-output "No Updater.ps1 update needed..."
+    }
 #endregion
 
 #region: Start Base Script
