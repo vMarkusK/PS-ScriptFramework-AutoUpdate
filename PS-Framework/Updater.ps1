@@ -15,24 +15,27 @@
 [CmdletBinding()]
 Param(
   [Parameter(Mandatory=$False,Position=1)]
-   [string] $Config = "Default"
+   [string] $Config = "Default",
+  [Parameter(Mandatory=$False,Position=2)]
+   [string] $IgnoreUpdate = $False
 )  
 
-#region 0: Clear Errors
+#region: Clear Errors
 $error.clear()
 #endregion
 
-#region 1: Global Definitions
+#region: Global Definitions
 $Validate = $True
 $BaseDir = $env:windir + "\TEMP\PS\"
 $LogFile = $BaseDir + "Output.txt"
 $BaseURL = "http://mycloudrevolution.com/Projects/PS-Framework/"
 $BaseXML = "Updater.xml"
+$BasePS1 = "Updater.ps1"
 Start-Transcript -Path $LogFile 
 Write-Output "`nStarting with Config: $Config"
 #endregion
 
-#region 2: Check amd Create Path
+#region: Check amd Create Path
 if (!(Test-Path -path $BaseDir)) {
     try {
         New-Item -ItemType directory -Path $BaseDir
@@ -45,10 +48,10 @@ if (!(Test-Path -path $BaseDir)) {
 }
 #endregion
 
-#region 3: Download BaseXML
+#region: Download BaseXML
 try {
     $Url = $BaseURL + $BaseXML 
-    Invoke-WebRequest $Url -OutFile ($BaseDir + $BaseXML)
+    Invoke-WebRequest $Url -OutFile ($BaseDir + $BaseXML) -ErrorAction Stop
     }
 catch {
     # Error out if loading fails
@@ -57,7 +60,20 @@ catch {
 }
 #endregion
 
-#region 4: Check and Load BaseXML
+#region: Download BasePS1
+try {
+    $Url = $BaseURL + $BasePS1
+    Invoke-WebRequest $Url -OutFile ($BaseDir + $BasePS1) -ErrorAction Stop
+    }
+catch {
+    # Error out if loading fails
+    $Validate = $false
+    Write-Error "`nERROR: Failed to Download $BasePS1"  
+}
+#endregion
+
+
+#region: Check and Load BaseXML
 $BaseXMLPath = $BaseDir + $BaseXML
 If (Test-Path $BaseXMLPath  ) {
     try {$BaseXMLContent = [XML] (Get-Content $BaseXMLPath )} catch {$Validate = $false; Write-Error "`nERROR: Invalid $BaseXML"}
@@ -68,12 +84,12 @@ If (Test-Path $BaseXMLPath  ) {
     }
 #endregion
 
-#region 5: Download Files from BaseXML
+#region: Download Files from BaseXML
 [Array] $BaseFiles =  $BaseXMLContent.Updater.Files.File
 Foreach($BaseFile in $BaseFiles){
     try {
         $Url = $BaseURL + $BaseFile
-        Invoke-WebRequest $Url -OutFile ($BaseDir + $BaseFile)
+        Invoke-WebRequest $Url -OutFile ($BaseDir + $BaseFile) -ErrorAction Stop
       }
     catch {
       # Error out if loading fails
@@ -83,7 +99,7 @@ Foreach($BaseFile in $BaseFiles){
 }
 #endregion
 
-#region 6: Download Customer Files
+#region: Download Customer Files
 if ($Config -ne "Default") {
     [Array] $ConfigFiles = @("Customer-" + $Config + ".xml"; "Customer-" + $Config + ".ps1")
     Foreach($ConfigFile in $ConfigFiles){
@@ -99,16 +115,49 @@ if ($Config -ne "Default") {
     }
  }
 #endregion    
-    
-#region 7: Start Base Script
+
+#region: Updater Check
+$myFile = $MyInvocation.MyCommand.Path
+$myFileHash = (Get-FileHash -Path $myFile -Algorithm MD5).Hash
+$newFile = ($BaseDir + $BasePS1)
+$newFileHash = (Get-FileHash -Path $newFile -Algorithm MD5).Hash
+
+Write-Output "`nMy Updater File: $myFile `nMD5 Hash: $myFileHash"
+Write-Output "`nNew Updater File: $newFile `nMD5 Hash: $newFileHash"
+
+if ($myFileHash -ne $newFileHash -and $IgnoreUpdate -eq $False) {
+    try {
+        Copy-Item $newFile -Destination $($myFile)
+        Write-Warning "Replacing local Updater.ps1 with Server Version. Exiting this Version and wait for next run..."
+        Stop-Transcript
+        Exit
+    }
+    catch {
+            # Error out if replacing fails
+            $Validate = $false
+            Write-Error "`nERROR: Failed to Update Update.ps1"  
+        } 
+    }
+    elseif ($myFileHash -ne $newFileHash -and $IgnoreUpdate -eq $true) {
+        Write-Warning "Replacing local Updater.ps1 with Server Version skipped..."
+    }
+        elseif ($myFileHash -eq $newFileHash ) {
+        Write-output "No Updater.ps1 update needed..."
+    }
+#endregion
+
+#region: Start Base Script
 if($Validate -eq $True) {
     $BaseScript = ($BaseXMLContent.Updater.Variable | Where-Object {$_.Name -eq "BaseScript"}).Value
     Write-Output "`nStarting $BaseDir$BaseScript"  
     Invoke-Expression ($BaseDir + $BaseScript)
     }
+    else {
+        Write-Warning "Starting $BaseDir$BaseScript skipped... Validation Error." 
+    }
 #endregion
 
-#region 8: Finalize
+#region: Finalize
 Stop-Transcript
 
 if($Validate -eq $false) {
