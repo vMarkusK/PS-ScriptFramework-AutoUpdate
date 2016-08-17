@@ -33,13 +33,13 @@ If (Test-Path $myExampleScriptXMLPath  ) {
 if($Validate -eq $True) {
     $Text = ($myExampleScriptXMLContent.myExample.Variable | Where-Object {$_.Name -eq "Text"}).Value
     try {
-        New-EventLog –LogName Application –Source "My Script" -ErrorAction SilentlyContinue
-        Write-Eventlog -logname Application -source "My Script" -eventID 666 -entrytype Information -message $Text -category 1 -rawdata 10,20
+        $wshell = New-Object -ComObject Wscript.Shell
+        $wshell.Popup("$Text",0,"Done",0x1)
     }
     catch {
         # Error out if loading fails
         $Validate = $false
-        Write-Error "`nERROR: Failed to Create Eventlog."  
+        Write-Error "`nERROR: Failed to Create Popup."  
         }
 
 }
