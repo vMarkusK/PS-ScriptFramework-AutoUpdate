@@ -10,7 +10,7 @@
     This is a self updating PowerShell Script Framework.
     
     Module-Name: Updater
-    Module Version: 1.0
+    Module Version: 1.2
 #>
 [CmdletBinding()]
 Param(
