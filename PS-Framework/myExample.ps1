@@ -19,7 +19,7 @@ $myExampleScriptXML = "myExample.xml"
 #endregion
 
 #region 2: Check and Load myExampleXML
-$myExampleScriptXMLPath = $myExampleDir + $myExampleScriptXML
+$myExampleScriptXMLPath = $BaseDir + $myExampleScriptXML
 If (Test-Path $myExampleScriptXMLPath  ) {
     try {$myExampleScriptXMLContent = [XML] (Get-Content $myExampleScriptXMLPath )} catch {$Validate = $false; Write-Error "`nERROR: Invalid $myExampleScriptXML"}
     } Else {
