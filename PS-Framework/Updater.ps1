@@ -127,7 +127,7 @@ Write-Output "`nNew Updater File: $newFile `nMD5 Hash: $newFileHash"
 
 if ($myFileHash -ne $newFileHash -and $IgnoreUpdate -eq $False) {
     try {
-        Copy-Item $newFile -Destination $($myFile + ".new")
+        Copy-Item $newFile -Destination $($myFile)
         Write-Warning "Replacing local Updater.ps1 with Server Version. Exiting this Version and wait for next run..."
         Stop-Transcript
         Exit
