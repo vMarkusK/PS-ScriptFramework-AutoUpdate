@@ -10,7 +10,7 @@
     This is a self updating PowerShell Script Framework.
     
     Module-Name: BaseScript
-    Module Version: 1.0
+    Module Version: 1.1
 #>
 
 #region 1: Global Definitions
